@@ -70,7 +70,7 @@ export function Pricing() {
                 ))}
               </ul>
               <a
-                href="#"
+                href="/signup"
                 className={cn(
                   "mt-8 rounded-full px-5 py-3 text-center text-sm font-medium transition-opacity",
                   t.featured

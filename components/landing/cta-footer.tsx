@@ -17,7 +17,7 @@ export function Cta() {
           Connect your accounts and publish your first cross-post in minutes.
         </p>
         <a
-          href="#"
+          href="/signup"
           className="mt-8 inline-block rounded-full bg-white px-7 py-3 font-medium text-black transition-opacity hover:opacity-90"
         >
           Start posting free

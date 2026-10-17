@@ -14,10 +14,10 @@ const links = [
   { href: "#faq", label: "FAQ" },
 ];
 
-export function Logo() {
+export function Logo({ href = "#" }: { href?: string }) {
   return (
     <a
-      href="#"
+      href={href}
       className="flex items-center gap-2 font-semibold tracking-tight"
     >
       <span className="bg-brand-gradient grid size-8 place-items-center rounded-lg">
@@ -64,13 +64,13 @@ export function Navbar() {
           </ul>
           <div className="hidden items-center gap-3 md:flex">
             <a
-              href="#"
+              href="/login"
               className="px-3 py-2 text-sm text-muted transition-colors hover:text-foreground"
             >
               Log in
             </a>
             <a
-              href="#"
+              href="/signup"
               className="bg-brand-gradient rounded-full px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
             >
               Get started
@@ -115,7 +115,7 @@ export function Navbar() {
             transition={{ duration: 0.25 }}
             className="fixed inset-0 z-40 flex flex-col bg-background px-5 pb-8 pt-24 md:hidden"
           >
-            <ul className="flex flex-1 flex-col justify-center gap-2">
+            <ul className="flex flex-1 flex-col gap-2">
               {links.map((l, i) => (
                 <motion.li
                   key={l.href}
@@ -135,13 +135,13 @@ export function Navbar() {
             </ul>
             <div className="flex flex-col gap-3">
               <a
-                href="#"
+                href="/login"
                 className="rounded-full border border-border px-4 py-3 text-center font-medium"
               >
                 Log in
               </a>
               <a
-                href="#"
+                href="/signup"
                 className="bg-brand-gradient rounded-full px-4 py-3 text-center font-medium text-white"
               >
                 Get started

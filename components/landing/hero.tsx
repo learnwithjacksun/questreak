@@ -24,19 +24,19 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+          <h1 className="sm:text-5xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
             Write once.
             <br />
             <span className="text-muted">Post everywhere.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-muted">
+          <p className="mt-6 max-w-lg md:text-lg text-base leading-8 text-muted">
             Questreak publishes your content to Facebook, X, Instagram, LinkedIn
-            and more in one click — adapted to each platform, scheduled when you
+            and more in one click, adapted to each platform, scheduled when you
             want, tracked all in one place.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <a
-              href="#"
+              href="/signup"
               className="bg-brand-gradient inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-medium text-white transition-opacity hover:opacity-90"
             >
               Start posting free
