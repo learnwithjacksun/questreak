@@ -24,6 +24,10 @@ const faqs = [
     a: "Yes. Pick a date and time and Questreak publishes automatically, retrying if a platform has a hiccup.",
   },
   {
+    q: "What are boost services and ready-made accounts?",
+    a: "They're optional extras in the Growth menu. Boost services add followers, likes or views to accounts you run, and you choose the platform, service and quality. Ready-made accounts are listed with live stock and delivered to your orders page after payment. They're separate from publishing, so use them in line with each platform's rules.",
+  },
+  {
     q: "Does AI write my posts for me?",
     a: "Only if you ask. The AI assistant can generate post text, rephrase, remodel or fix grammar on request. Nothing is changed or posted without your say-so.",
   },

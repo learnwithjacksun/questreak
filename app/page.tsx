@@ -2,6 +2,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Hero } from "@/components/landing/hero";
 import { Platforms } from "@/components/landing/platforms";
 import { Features } from "@/components/landing/features";
+import { Growth } from "@/components/landing/growth";
 import { HowItWorks } from "@/components/landing/how-it-works";
 import { Pricing } from "@/components/landing/pricing";
 import { Faq } from "@/components/landing/faq";
@@ -15,6 +16,7 @@ export default function Home() {
         <Hero />
         <Platforms />
         <Features />
+        <Growth />
         <HowItWorks />
         <Pricing />
         <Faq />

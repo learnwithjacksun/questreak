@@ -8,6 +8,7 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { platforms } from "./platform-icons";
+import { PlatformIcon } from "@/components/ui/primitives";
 
 const targets = platforms.slice(0, 4);
 
@@ -77,7 +78,7 @@ export function Hero() {
                 className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2.5"
               >
                 <span className="flex items-center gap-2.5 text-sm">
-                  <HugeiconsIcon icon={p.icon} size={20} color={p.color} />
+                  <PlatformIcon platform={p.key} size={16} />
                   {p.name}
                 </span>
                 <motion.span

@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { HugeiconsIcon } from "@hugeicons/react";
 import { platforms } from "./platform-icons";
+import { PlatformIcon } from "@/components/ui/primitives";
 
 export function Platforms() {
   return (
@@ -26,7 +26,7 @@ export function Platforms() {
               whileHover={{ y: -4 }}
               className="card flex flex-col items-center gap-3 p-6"
             >
-              <HugeiconsIcon icon={p.icon} size={32} color={p.color} />
+              <PlatformIcon platform={p.key} size={40} />
               <span className="font-medium">{p.name}</span>
               {!p.live && (
                 <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-muted">

@@ -12,7 +12,7 @@ type FieldProps = ComponentProps<"input"> & {
 };
 
 const inputClass =
-  "h-12 w-full rounded-xl border border-border bg-surface px-4 text-[15px] outline-none transition-colors placeholder:text-muted/60 focus:border-white/40 aria-[invalid=true]:border-red-400/70";
+  "h-12 w-full rounded-xl border border-border bg-surface px-4 text-base outline-none transition-colors placeholder:text-muted/60 focus:border-white/40 aria-[invalid=true]:border-red-400/70";
 
 export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
   { label, error, className, id, ...props },

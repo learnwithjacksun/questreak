@@ -3,6 +3,7 @@
 import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { connectDB } from "@/lib/db";
+import { sendWelcomeEmail } from "@/lib/mail";
 import { checkOtp, issueOtp } from "@/lib/otp";
 import { createSession, destroySession } from "@/lib/session";
 import {
@@ -101,12 +102,18 @@ export async function verifyOtp(input: {
   const result = await checkOtp(email, code);
   if (!result.ok) return result;
 
-  const user = await User.findOneAndUpdate(
-    { email },
-    { emailVerified: true },
-    { new: true },
-  );
+  // Returns the document as it was BEFORE the update, so we can tell a first-time verification.
+  const user = await User.findOneAndUpdate({ email }, { emailVerified: true });
   if (!user) return { ok: false, error: "Account not found. Sign up again." };
+
+  if (!user.emailVerified) {
+    // Best effort: a failed welcome email must never block the user from getting in.
+    try {
+      await sendWelcomeEmail(email, user.name);
+    } catch (err) {
+      console.error("[auth] welcome email failed:", err);
+    }
+  }
 
   await createSession(String(user._id));
   redirect("/dashboard");

@@ -1,24 +1,14 @@
 import "server-only";
+import { otpEmail, welcomeEmail, type EmailContent } from "@/lib/emails/templates";
 
-export async function sendOtpEmail(
-  to: string,
-  code: string,
-  purpose: "verify" | "reset" = "verify",
-) {
-  const intro =
-    purpose === "reset"
-      ? "Use this code to reset your Questreak password:"
-      : "Your Questreak verification code is:";
-  const subjectText =
-    purpose === "reset" ? "password reset code" : "verification code";
+/** Sends one transactional email through Brevo. In dev without a key, prints it instead. */
+async function sendEmail(to: string, content: EmailContent) {
   const key = process.env.BREVO_API_KEY;
   if (!key) {
     if (process.env.NODE_ENV === "production") {
       throw new Error("BREVO_API_KEY is not set");
     }
-    console.log(`
-[dev] Questreak verification code for ${to}: ${code}
-`);
+    console.log(`\n[dev email] to: ${to}\nsubject: ${content.subject}\n\n${content.text}\n`);
     return;
   }
   const senderEmail = process.env.MAIL_FROM;
@@ -34,12 +24,25 @@ export async function sendOtpEmail(
     body: JSON.stringify({
       sender: { name: "Questreak", email: senderEmail },
       to: [{ email: to }],
-      subject: `${code} is your Questreak ${subjectText}`,
-      htmlContent: `<div style="font-family:sans-serif"><p>${intro}</p><p style="font-size:32px;font-weight:700;letter-spacing:8px">${code}</p><p>It expires in 10 minutes. If you didn't request this, you can safely ignore this email.</p></div>`,
+      subject: content.subject,
+      htmlContent: content.html,
+      textContent: content.text,
     }),
   });
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
     throw new Error(`Brevo email failed (${res.status}): ${detail}`);
   }
+}
+
+export function sendOtpEmail(
+  to: string,
+  code: string,
+  purpose: "verify" | "reset" = "verify",
+) {
+  return sendEmail(to, otpEmail(code, purpose));
+}
+
+export function sendWelcomeEmail(to: string, name: string) {
+  return sendEmail(to, welcomeEmail(name));
 }
