@@ -3,7 +3,7 @@
 import { forwardRef, useState, type ComponentProps } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons";
-import { toast } from "sonner";
+import { hardNavigate } from "@/lib/client/navigate";
 import { cn } from "@/lib/utils";
 
 type FieldProps = ComponentProps<"input"> & {
@@ -107,11 +107,7 @@ export function GoogleButton({ label }: { label: string }) {
   return (
     <button
       type="button"
-      onClick={() =>
-        toast.info("Google sign-in isn't available yet", {
-          description: "Please use your email and password for now.",
-        })
-      }
+      onClick={() => hardNavigate("/api/auth/google")}
       className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-border bg-surface font-medium transition-colors hover:bg-white/10"
     >
       <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>

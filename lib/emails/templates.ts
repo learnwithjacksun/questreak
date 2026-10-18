@@ -67,7 +67,7 @@ export function welcomeEmail(name: string): EmailContent {
   const html = renderEmail({
     preheader: "Your email is verified. Here's how to get started.",
     // renderEmail escapes the heading, so pass the raw name here.
-    heading: `Welcome to Questreak, ${name}`,
+    heading: `Hello, ${name}`,
     body:
       paragraph("Your email is verified and your account is ready. Questreak lets you write a post once and send it to all your social accounts.") +
       paragraph("Here&rsquo;s the quickest way to get going:") +
@@ -81,7 +81,7 @@ export function welcomeEmail(name: string): EmailContent {
   });
 
   const text = [
-    `Welcome to Questreak, ${name}`,
+    `Hello, ${name}`,
     "",
     "Your email is verified and your account is ready. Questreak lets you write a post once and send it to all your social accounts.",
     "",

@@ -12,6 +12,7 @@ import { Divider, Field, GoogleButton, PasswordField, SubmitButton } from "./for
 
 const queryErrors: Record<string, string> = {
   google_failed: "Google sign-in failed. Please try again.",
+  google_cancelled: "Google sign-in was cancelled.",
   google_unavailable: "Google sign-in isn't configured yet.",
 };
 
@@ -26,7 +27,7 @@ export function LoginForm() {
 
   useEffect(() => {
     const code = params.get("error");
-    if (code && queryErrors[code]) toast.error(queryErrors[code]);
+    if (code && queryErrors[code]) (code === "google_cancelled" ? toast.info : toast.error)(queryErrors[code]);
     if (params.get("passwordReset")) {
       toast.success("Password updated. Sign in with your new password.");
     }

@@ -14,9 +14,9 @@ import {
 } from "../types";
 
 /**
- * Pinterest API v5. Apps start with "Trial" access, where pins are only visible to you (and the
- * sandbox host may be required); set PINTEREST_API_BASE=https://api-sandbox.pinterest.com/v5 to
- * test, then request Standard access.
+ * Pinterest API v5. Apps start with "Trial" access: pins and boards can be created but are only
+ * visible to their creator, until Standard access is granted. The normal API host is used for both
+ * (the sandbox host takes hand-generated tokens, not the OAuth flow, so it isn't needed here).
  */
 
 const base = () => (process.env.PINTEREST_API_BASE || "https://api.pinterest.com/v5").replace(/\/$/, "");

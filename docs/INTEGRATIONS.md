@@ -29,6 +29,32 @@ Set `NEXT_PUBLIC_SUPPORT_EMAIL` so those pages show your real contact address.
 
 ---
 
+## Google: sign-in to Questreak, and connecting YouTube
+
+One Google Cloud project and one OAuth client (Web application) serve two separate flows:
+
+| Flow | Purpose | Scopes | Redirect URI to register |
+|---|---|---|---|
+| **Sign in / sign up** ("Continue with Google") | Log in to Questreak | `openid email profile` (non-sensitive) | `{APP_URL}/api/auth/google/callback` |
+| **Connect YouTube** (Accounts page) | Publish videos to a channel | `youtube.upload`, `youtube.readonly` (sensitive) | `{APP_URL}/api/connect/youtube/callback` |
+
+Setup (https://console.cloud.google.com/apis/credentials):
+1. Create an **OAuth client ID** of type *Web application*. Add **both** redirect URIs above (plus the `http://localhost:3000/...`
+   versions for local testing) and copy the Client ID / secret into `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
+2. Configure the consent screen (Google Auth Platform → Branding): app name, logo, support email, home page `{APP_URL}`,
+   privacy policy `{APP_URL}/privacy`, terms `{APP_URL}/terms`, and your domain under Authorized domains.
+3. Audience: in *Testing* only listed test users can sign in. Set it to **In production** so anyone can. The sign-in scopes are
+   non-sensitive, so this needs no Google review. The YouTube scopes are sensitive and need Google's verification before
+   strangers can connect a channel (see the review link in the YouTube section).
+4. Enable the **YouTube Data API v3** (only for the YouTube connection).
+
+How sign-in behaves:
+- New email: an account is created, already verified, with no password (the user can add one later in Settings), and a welcome email is sent.
+- Existing email: if the email already has a Questreak account, Google is linked to it. Their password keeps working.
+- An account that was registered with a password but never verified loses that password when the real owner signs in with
+  Google, so nobody can squat on someone else's email address.
+- Cancelling on Google's page just returns to the login page.
+
 ## Meta: Facebook Pages + Instagram (one app)
 
 1. Create the app: <https://developers.facebook.com/apps/creation/>
@@ -115,6 +141,8 @@ Tokens last 60 days and LinkedIn doesn't issue refresh tokens to normal apps, so
 
 ## YouTube (Google)
 
+See the Google section above for the shared setup. YouTube specifics:
+
 1. <https://console.cloud.google.com/apis/credentials>: use the same project as Google sign-in. Enable **YouTube Data API v3**.
 2. OAuth consent screen: add scopes `youtube.upload` and `youtube.readonly`. While in *Testing*, only listed test users
    can connect; publish the app and complete Google's **OAuth verification** for everyone else (needs the privacy policy URL).
@@ -125,11 +153,17 @@ Tokens last 60 days and LinkedIn doesn't issue refresh tokens to normal apps, so
 
 ## Pinterest
 
-1. <https://developers.pinterest.com/apps/> → **Connect app**. New apps start with **Trial** access.
-2. Redirect URI: `{APP_URL}/api/connect/pinterest/callback`. Scopes used: `boards:read`, `pins:read`, `pins:write`, `user_accounts:read`.
+1. <https://developers.pinterest.com/apps/> → **Connect app**. Describe your use case; Pinterest reviews it and, if approved, gives the
+   app **Trial** access (this can take a few days). Until then the App Secret isn't available.
+2. Add the redirect URI `{APP_URL}/api/connect/pinterest/callback` (the app's settings page). Scopes used: `boards:read`,
+   `pins:read`, `pins:write`, `user_accounts:read`.
 3. Copy **App ID / App secret** into `PINTEREST_APP_ID` / `PINTEREST_APP_SECRET`.
-4. On Trial, use the sandbox: `PINTEREST_API_BASE=https://api-sandbox.pinterest.com/v5`. Apply for **Standard access** (demo video of
-   the flow) to post to real boards, then set it back to `https://api.pinterest.com/v5`.
+4. **Trial access can already create boards and pins, but they're only visible to the account that created them.** Use it to test the
+   whole flow with your own account; keep `PINTEREST_API_BASE=https://api.pinterest.com/v5` (the default). The sandbox host
+   (`api-sandbox.pinterest.com`) uses tokens you generate by hand in the app's Configure tab rather than the OAuth flow, so it isn't
+   needed for Questreak.
+5. To publish pins everyone can see, request **Standard access**: you must already have Trial access, and Pinterest requires a screen
+   recording of the OAuth flow (sign in → connect → create a pin). See <https://dev.pinterest.com/docs/key-concepts/access-tiers/>.
 
 ## Bluesky
 

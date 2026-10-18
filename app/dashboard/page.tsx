@@ -90,7 +90,7 @@ export default async function OverviewPage() {
         }
       />
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
         <StatCard
           label="Connected networks"
           value={stats.connectedAccounts}
@@ -138,12 +138,12 @@ export default async function OverviewPage() {
         <h2 className="mb-4 text-lg font-semibold tracking-tight">
           Quick actions
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 ">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {quickActions.map((a) => (
             <Link
               key={a.href}
               href={a.href}
-              className="card group flex flex-col p-5 transition-colors hover:border-white/20"
+              className="card group flex min-w-0 flex-col p-3.5 transition-colors hover:border-white/20 sm:p-5"
             >
               <div className="flex items-center justify-between">
                 <span className="grid size-10 place-items-center rounded-lg border border-border bg-white/5">
@@ -155,8 +155,8 @@ export default async function OverviewPage() {
                   className="text-muted transition-colors group-hover:text-foreground"
                 />
               </div>
-              <p className="mt-4 font-medium">{a.title}</p>
-              <p className="mt-0.5 text-sm text-muted">{a.text}</p>
+              <p className="mt-3 text-sm font-medium leading-snug sm:mt-4 sm:text-base">{a.title}</p>
+              <p className="mt-0.5 text-xs leading-snug text-muted sm:text-sm">{a.text}</p>
             </Link>
           ))}
         </div>
