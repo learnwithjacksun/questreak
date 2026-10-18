@@ -68,15 +68,19 @@ export default function PrivacyPage() {
       <Section title="Service providers">
         <p>We rely on a small number of providers to run Questreak. They process data only to provide their service to us:</p>
         <ul>
-          <li>Database hosting (MongoDB Atlas) for your account and posts.</li>
-          <li>Media storage and delivery (Cloudinary) for images and videos you upload.</li>
-          <li>Transactional email (Brevo) for verification and notification emails.</li>
+          <li>Database hosting for your account and posts.</li>
+          <li>Media storage and delivery for images and videos you upload.</li>
+          <li>Transactional email for verification and notification emails.</li>
           <li>
-            AI writing assistance (Google Gemini). Text is sent to the model only when you choose to use the AI assistant, and only the text you
-            ask it to work on.
+            AI writing assistance. Text is sent to the model only when you choose to use the AI assistant, and only the text you ask it to work
+            on.
           </li>
           <li>Suppliers fulfilling boost services or account purchases you order, which receive the details needed for that order.</li>
         </ul>
+        <p>
+          If you need the current list of these providers, contact us at{" "}
+          <a href={`mailto:${SITE.supportEmail}`}>{SITE.supportEmail}</a>.
+        </p>
       </Section>
 
       <Section title="Retention and deletion">
