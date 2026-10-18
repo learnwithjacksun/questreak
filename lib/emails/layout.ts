@@ -18,6 +18,11 @@ const INK = "#18181b";
 const MUTED = "#71717a";
 const LINE = "#e4e4e7";
 
+/** Absolute URL of a public asset (emails can't use relative links). */
+function assetUrl(path: string) {
+  return `${(process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "")}${path}`;
+}
+
 export function paragraph(html: string) {
   return `<p style="margin:0 0 16px;font-size:16px;line-height:26px;color:${INK};">${html}</p>`;
 }
@@ -69,7 +74,7 @@ export function renderEmail({
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f4f5;">
 <tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;font-family:${FONT};">
-<tr><td style="padding:0 4px 20px;font-size:18px;font-weight:700;letter-spacing:-0.2px;color:${INK};">Questreak</td></tr>
+<tr><td style="padding:0 4px 20px;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td valign="middle" style="padding-right:10px;"><img src="${assetUrl("/email/logo.png")}" width="36" height="36" alt="" style="display:block;border:0;border-radius:9px;"></td><td valign="middle" style="font-size:19px;font-weight:700;letter-spacing:-0.2px;color:${INK};">Questreak</td></tr></table></td></tr>
 <tr><td style="background:#ffffff;border:1px solid ${LINE};border-radius:12px;padding:36px 32px;">
 <h1 style="margin:0 0 20px;font-size:24px;line-height:32px;font-weight:700;letter-spacing:-0.3px;color:${INK};">${escapeHtml(heading)}</h1>
 ${body}

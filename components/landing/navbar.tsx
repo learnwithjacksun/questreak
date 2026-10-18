@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { SentIcon } from "@hugeicons/core-free-icons";
+import { LogoMark } from "@/components/ui/logo-mark";
 import { MenuButton } from "@/components/ui/menu-button";
 import { MobileMenu } from "@/components/ui/mobile-menu";
 
@@ -23,9 +22,7 @@ export function Logo({ href = "#" }: { href?: string }) {
       href={href}
       className="flex items-center gap-2 font-semibold tracking-tight"
     >
-      <span className="bg-brand-gradient grid size-8 place-items-center rounded-lg">
-        <HugeiconsIcon icon={SentIcon} size={18} color="white" />
-      </span>
+      <LogoMark size={24} />
       <span className="text-lg">Questreak</span>
     </a>
   );
