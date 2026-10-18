@@ -93,8 +93,8 @@ export function CalendarView({
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <h2 className="mr-2 min-w-44 text-lg font-semibold tracking-tight" suppressHydrationWarning>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="mr-2 w-full text-lg sm:w-auto sm:min-w-44 font-semibold tracking-tight" suppressHydrationWarning>
             {title}
           </h2>
           <Button size="sm" variant="outline" aria-label="Previous" onClick={() => step(-1)} className="!px-2.5">

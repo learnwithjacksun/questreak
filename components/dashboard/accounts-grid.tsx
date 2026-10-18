@@ -37,14 +37,14 @@ export function AccountsGrid({ accounts }: { accounts: AccountDTO[] }) {
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-2">
         {PLATFORM_LIST.map((p) => {
           const connected = accounts.filter((a) => a.platform === p.key);
           return (
             <section key={p.key} className="card flex flex-col p-5">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
                 <PlatformIcon platform={p.key} size={22} className="rounded-lg" />
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 basis-32">
                   <h2 className="font-semibold">{p.name}</h2>
                   <p className="text-xs text-muted">Connects a {p.accountKind}</p>
                 </div>
@@ -62,9 +62,9 @@ export function AccountsGrid({ accounts }: { accounts: AccountDTO[] }) {
               {connected.length > 0 ? (
                 <ul className="mt-5 divide-y divide-border rounded-xl border border-border">
                   {connected.map((a) => (
-                    <li key={a.id} className="flex items-center gap-3 px-4 py-3">
+                    <li key={a.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3">
                       <Avatar name={a.displayName} src={a.avatar} size={36} />
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 basis-36">
                         <p className="truncate text-sm font-medium">{a.displayName}</p>
                         <p className="truncate text-xs text-muted">
                           @{a.handle} · connected <LocalTime iso={a.connectedAt} variant="date" />

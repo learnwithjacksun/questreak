@@ -125,8 +125,8 @@ export function ComposeEditor({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-      <div className="space-y-6">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <div className="min-w-0 space-y-6">
         <section
           className={cn("card relative p-5 transition-colors", dragging && "border-foreground bg-white/[0.04]")}
           onDragOver={(e) => {
@@ -359,7 +359,7 @@ export function ComposeEditor({
         </div>
       </div>
 
-      <div className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+      <div className="min-w-0 space-y-6 lg:sticky lg:top-24 lg:self-start">
         <PostPreview text={text} media={media} accounts={selected} userName={userName} />
         <AiPanel selectedPlatforms={selectedPlatforms} />
       </div>

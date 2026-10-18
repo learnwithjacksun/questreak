@@ -65,7 +65,7 @@ export function OrdersView({ orders, paymentsLive }: { orders: OrderDTO[]; payme
           title="No orders yet"
           description="Boost orders and account purchases will appear here with their status."
           action={
-            <div className="flex gap-3">
+            <div className="flex flex-wrap justify-center gap-3">
               <LinkButton href="/dashboard/growth/boost" size="sm" icon={<HugeiconsIcon icon={Rocket01Icon} size={16} />}>
                 Boost services
               </LinkButton>

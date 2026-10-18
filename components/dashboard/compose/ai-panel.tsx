@@ -7,7 +7,6 @@ import { AiMagicIcon, Undo02Icon } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { PlatformIcon } from "@/components/ui/primitives";
 import { Select } from "@/components/ui/select";
-import { Tabs } from "@/components/ui/tabs";
 import { PLATFORM_LIST, type PlatformKey } from "@/lib/platforms";
 import { useComposeStore } from "@/lib/stores/compose-store";
 import { cn } from "@/lib/utils";
@@ -75,20 +74,33 @@ export function AiPanel({ selectedPlatforms }: { selectedPlatforms: PlatformKey[
       </div>
       <p className="mt-1 text-sm text-muted">Only runs when you ask. Nothing changes until you accept it.</p>
 
-      <Tabs<Mode>
-        className="mt-4"
-        value={mode}
-        onChange={(m) => {
-          setMode(m);
-          setResult(null);
-        }}
-        items={[
-          { value: "generate", label: "Generate" },
-          { value: "rephrase", label: "Rephrase" },
-          { value: "remodel", label: "Remodel" },
-          { value: "grammar", label: "Fix grammar" },
-        ]}
-      />
+      <div role="tablist" aria-label="AI action" className="mt-4 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        {(
+          [
+            ["generate", "Generate"],
+            ["rephrase", "Rephrase"],
+            ["remodel", "Remodel"],
+            ["grammar", "Fix grammar"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={mode === value}
+            onClick={() => {
+              setMode(value);
+              setResult(null);
+            }}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+              mode === value ? "border-foreground bg-white/10" : "border-border text-muted hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       <p className="mt-4 text-sm text-muted">{copy[mode].hint}</p>
 
