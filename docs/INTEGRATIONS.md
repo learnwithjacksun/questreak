@@ -145,14 +145,25 @@ server the first time and stores the credentials encrypted. Each server's own ch
 
 ## Scheduling
 
-Scheduled posts need something to call the worker once a minute. Pick one:
+Scheduled posts need something to call the worker once a minute. The app doesn't ship a Vercel cron
+config, because Vercel's Hobby plan only allows daily jobs. Use an external scheduler instead:
 
-- **Vercel**: `vercel.json` already defines the cron jobs. Set `CRON_SECRET` in the project's environment variables (Vercel
-  sends it as a Bearer token). Per-minute crons need a paid plan; Hobby plans only allow daily jobs.
-- **Any host with a scheduler** (cron-job.org, GitHub Actions, systemd...): call
-  `GET {APP_URL}/api/cron/publish` every minute and `GET {APP_URL}/api/cron/refresh` daily with the header
-  `Authorization: Bearer $CRON_SECRET`.
-- **Self-hosted Node/Docker**: set `ENABLE_IN_PROCESS_SCHEDULER=true` and the server runs the worker itself.
+1. Set `CRON_SECRET` in your host's environment variables (same value as in `.env.local`).
+2. Create two jobs in cron-jobs.org, Google Apps Script, GitHub Actions or any scheduler.
+   Both need the header `Authorization: Bearer $CRON_SECRET`:
+
+| Job | URL | Schedule |
+|---|---|---|
+| Publish due posts | `GET {APP_URL}/api/cron/publish` | every minute |
+| Renew expiring tokens | `GET {APP_URL}/api/cron/refresh` | once a day |
+
+If a scheduler can't send headers, the secret can go in the query string instead (`?secret=...`),
+though headers are safer because URLs end up in logs.
+
+A normal response is `{"due":0,"published":0,"failed":0,"recovered":0}`; `401` means the secret doesn't match.
+
+- **Self-hosted Node/Docker:** set `ENABLE_IN_PROCESS_SCHEDULER=true` and the server runs the worker itself.
+- **Vercel Pro:** if you ever upgrade you can add a `vercel.json` with a `crons` list pointing at the same two routes.
 
 It is safe to run several workers at once: a post is claimed atomically, so it can never be published twice, and a retry only
 re-sends the accounts that failed.

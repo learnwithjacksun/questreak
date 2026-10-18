@@ -3,7 +3,7 @@ import { processDuePosts, refreshExpiringAccounts } from "./engine";
 
 /**
  * In-process scheduler for self-hosted deployments (a long-running Node server or Docker).
- * On serverless hosts use the cron routes instead (see vercel.json). Both are safe to run at
+ * On serverless hosts use the cron routes with an external scheduler instead (see docs/INTEGRATIONS.md). Both are safe to run at
  * once: posts are claimed atomically, so nothing is ever published twice.
  */
 
