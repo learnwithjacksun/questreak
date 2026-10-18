@@ -23,7 +23,7 @@ export function Hero() {
             <br />
             <span className="text-muted">Post everywhere.</span>
           </h1>
-          <p className="mt-6 max-w-lg md:text-lg text-base leading-8 text-muted">
+          <p className="mt-6 max-w-lg md:text-lg text-sm sm:text-base leading-auto sm:leading-8 text-muted">
             Questreak publishes your content to Facebook, X, Instagram, LinkedIn
             and more in one click, adapted to each platform, scheduled when you
             want, tracked all in one place.

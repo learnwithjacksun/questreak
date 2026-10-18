@@ -15,7 +15,7 @@ export function Platforms() {
           Connected through each platform&apos;s official API — no password
           sharing, ever.
         </p>
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-5">
+        <div className="mt-12 grid grid-cols-3 gap-2.5 sm:grid-cols-5 sm:gap-4">
           {platforms.map((p, i) => (
             <motion.div
               key={p.name}
@@ -24,15 +24,14 @@ export function Platforms() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -4 }}
-              className="card group flex flex-col items-center gap-3 p-6"
+              className="card group flex min-w-0 flex-col items-center gap-2 p-3 text-center sm:gap-3 sm:p-6"
             >
-              <span className="grayscale transition duration-300 group-hover:grayscale-0 group-active:grayscale-0">
+              <span className="-m-2 scale-[0.7] grayscale transition sm:m-0 sm:scale-100 duration-300 group-hover:grayscale-0 group-active:grayscale-0">
                 <PlatformIcon platform={p.key} size={40} />
               </span>
-         
-              <span className="font-medium">{p.name}</span>
+              <span className="text-xs font-medium sm:text-base">{p.name}</span>
               {!p.live && (
-                <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-muted">
+                <span className="rounded-full bg-white/5 px-1.5 py-0.5 text-[10px] text-muted sm:px-2 sm:text-[11px]">
                   Coming soon
                 </span>
               )}
