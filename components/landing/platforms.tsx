@@ -24,9 +24,12 @@ export function Platforms() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -4 }}
-              className="card flex flex-col items-center gap-3 p-6"
+              className="card group flex flex-col items-center gap-3 p-6"
             >
-              <PlatformIcon platform={p.key} size={40} />
+              <span className="grayscale transition duration-300 group-hover:grayscale-0 group-active:grayscale-0">
+                <PlatformIcon platform={p.key} size={40} />
+              </span>
+         
               <span className="font-medium">{p.name}</span>
               {!p.live && (
                 <span className="rounded-full bg-white/5 px-2 py-0.5 text-[11px] text-muted">

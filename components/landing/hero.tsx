@@ -2,15 +2,8 @@
 
 import { motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
-import {
-  ArrowRight01Icon,
-  Image01Icon,
-  Tick02Icon,
-} from "@hugeicons/core-free-icons";
-import { platforms } from "./platform-icons";
-import { PlatformIcon } from "@/components/ui/primitives";
-
-const targets = platforms.slice(0, 4);
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { HeroComposer } from "./hero-composer";
 
 export function Hero() {
   return (
@@ -26,7 +19,7 @@ export function Hero() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="sm:text-5xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
-            Write once.
+            Compose once.
             <br />
             <span className="text-muted">Post everywhere.</span>
           </h1>
@@ -52,58 +45,7 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="card relative p-5 shadow-2xl shadow-violet/10"
-        >
-          <p className="text-sm font-medium text-muted">New post</p>
-          <div className="mt-3 rounded-xl border border-border bg-background/60 p-4 text-[15px] leading-7">
-            Big news: we just shipped Questpay v2. Faster, simpler, and built for
-            creators who show up everywhere.
-            <div className="mt-3 flex items-center gap-2 text-muted">
-              <HugeiconsIcon icon={Image01Icon} size={18} />
-              <span className="text-xs">launch-banner.png</span>
-            </div>
-          </div>
-
-          <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
-            {targets.map((p, i) => (
-              <motion.div
-                key={p.name}
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 + i * 0.35 }}
-                className="flex items-center justify-between rounded-xl border border-border bg-background/60 px-3 py-2.5"
-              >
-                <span className="flex items-center gap-2.5 text-sm">
-                  <PlatformIcon platform={p.key} size={16} />
-                  {p.name}
-                </span>
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{
-                    delay: 1.1 + i * 0.35,
-                    type: "spring",
-                    stiffness: 400,
-                  }}
-                  className="grid size-5 place-items-center rounded-full bg-emerald-500"
-                >
-                  <HugeiconsIcon icon={Tick02Icon} size={12} color="white" />
-                </motion.span>
-              </motion.div>
-            ))}
-          </div>
-          <button
-            type="button"
-            tabIndex={-1}
-            className="bg-brand-gradient mt-5 w-full rounded-xl py-3 text-sm font-medium text-white"
-          >
-            Publish to 4 accounts
-          </button>
-        </motion.div>
+        <HeroComposer />
       </div>
     </section>
   );
