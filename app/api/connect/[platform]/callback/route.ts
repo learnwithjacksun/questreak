@@ -25,9 +25,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ plat
   if (!isPlatformKey(platform)) return back({ error: "unknown_platform" });
 
   const sp = req.nextUrl.searchParams;
-  if (sp.get("error")) {
-    // The user pressed "Cancel" or the provider refused.
-    return back({ error: "denied", platform, detail: sp.get("error_description") ?? sp.get("error") ?? "" });
+  const providerError = sp.get("error");
+  if (providerError) {
+    // A real "Cancel" is quiet; anything else (bad scope, unregistered redirect...) must show the reason.
+    const cancelled = ["access_denied", "user_cancelled_login", "user_cancelled_authorize"].includes(providerError);
+    const reason = sp.get("error_description") ?? providerError;
+    if (!cancelled) console.error(`[connect/${platform}] provider returned an error: ${providerError}: ${reason}`);
+    return back({ error: cancelled ? "denied" : "failed", platform, detail: cancelled ? reason : `${reason} (${providerError})` });
   }
 
   const provider = connectProvider(platform);

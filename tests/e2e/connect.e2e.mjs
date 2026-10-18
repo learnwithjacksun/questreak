@@ -76,13 +76,20 @@ try {
   r = await get("/api/connect/nope", alice.session);
   check("unknown network is rejected", new URL(r.headers.get("location")).searchParams.get("error") === "unknown_platform");
 
-  r = await get("/api/connect/x", alice.session);
-  let loc = new URL(r.headers.get("location"));
-  check("an unconfigured network says setup is needed", loc.pathname === "/dashboard/accounts" && loc.searchParams.get("error") === "not_configured" && loc.searchParams.get("platform") === "x", r.headers.get("location"));
+  // Use whichever network doesn't have credentials yet, so the test keeps working as keys are added.
+  const unconfigured = [["threads", "THREADS_APP_ID"], ["tiktok", "TIKTOK_CLIENT_KEY"], ["pinterest", "PINTEREST_APP_ID"]].find(([, env]) => !process.env[env]);
+  if (unconfigured) {
+    r = await get(`/api/connect/${unconfigured[0]}`, alice.session);
+    let loc = new URL(r.headers.get("location"));
+    check(`an unconfigured network (${unconfigured[0]}) says setup is needed`, loc.pathname === "/dashboard/accounts" && loc.searchParams.get("error") === "not_configured" && loc.searchParams.get("platform") === unconfigured[0], r.headers.get("location"));
+  } else {
+    console.log("  - skipped: every network has credentials");
+  }
 
   r = await get("/api/connect/instagram", alice.session);
-  loc = new URL(r.headers.get("location"));
-  check("Instagram goes through the Meta (Facebook) flow", loc.searchParams.get("error") === "not_configured", r.headers.get("location"));
+  let loc = new URL(r.headers.get("location"));
+  // Instagram signs in through Meta: either "not configured" (no Meta keys) or Facebook's own dialog.
+  check("Instagram goes through the Meta (Facebook) flow", loc.searchParams.get("error") === "not_configured" || loc.hostname.endsWith("facebook.com"), r.headers.get("location"));
 
   r = await get("/api/connect/mastodon", alice.session);
   loc = new URL(r.headers.get("location"));
