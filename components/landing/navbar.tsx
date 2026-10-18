@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { LogoMark } from "@/components/ui/logo-mark";
@@ -30,18 +30,36 @@ export function Logo({ href = "#" }: { href?: string }) {
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // The floating pill only applies while scrolled and the mobile menu is closed.
+  const floating = scrolled && !open;
 
   return (
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 border-b transition-colors",
-          open
-            ? "border-transparent bg-background"
-            : "border-border bg-background/70 backdrop-blur-xl",
+          "sticky top-0 z-50 h-16 border-b px-3 transition-colors duration-300",
+          open && "border-transparent bg-background",
+          !open && !floating && "border-border bg-background/70 backdrop-blur-xl",
+          floating && "border-transparent",
         )}
       >
-        <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+        <nav
+          className={cn(
+            "mx-auto flex items-center justify-between px-2 transition-all duration-300 sm:px-5",
+            floating
+              ? "mt-3 h-14 max-w-5xl rounded-full border border-border bg-background/70 pl-4 pr-2.5 shadow-lg shadow-black/30 backdrop-blur-xl sm:pl-6"
+              : "h-16 max-w-6xl",
+          )}
+        >
           <Logo />
           <ul className="hidden items-center gap-8 text-sm text-muted md:flex">
             {links.map((l) => (
