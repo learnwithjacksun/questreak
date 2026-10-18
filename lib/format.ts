@@ -38,3 +38,9 @@ export function toLocalInputValue(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+/** How an account's handle reads on each network ("@jack", "Jack Doe's email", "@me@mastodon.social"). */
+export function displayHandle(platform: string, handle: string) {
+  if (platform === "linkedin" || platform === "facebook") return handle;
+  return handle.startsWith("@") ? handle : `@${handle}`;
+}

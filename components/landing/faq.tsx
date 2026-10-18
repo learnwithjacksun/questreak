@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "Which platforms are supported?",
-    a: "Facebook Pages, X, Instagram (Business/Creator) and LinkedIn are first in line. Threads, TikTok, YouTube and Pinterest are coming soon.",
+    a: "Facebook Pages, Instagram (Business or Creator), X, LinkedIn, Threads, TikTok, YouTube, Pinterest, Bluesky and Mastodon. Meta and TikTok review third-party apps, so availability on those networks can roll out gradually.",
   },
   {
     q: "Can I post to my personal Facebook profile?",

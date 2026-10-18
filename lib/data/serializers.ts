@@ -21,8 +21,10 @@ export function toPostDTO(p: IPost): PostDTO {
       platform: t.platform,
       status: t.status,
       error: t.error,
+      needsReconnect: t.needsReconnect,
       externalUrl: t.externalUrl,
     })),
+    options: (p.options ?? {}) as PostDTO["options"],
     media: p.media.map((m) => ({
       mediaId: String(m.mediaId),
       url: m.url,
@@ -41,6 +43,9 @@ export function toAccountDTO(a: ISocialAccount): AccountDTO {
     status: a.status,
     connectedAt: iso(a.createdAt)!,
     expiresAt: iso(a.expiresAt),
+    lastError: a.lastError ?? null,
+    charLimit: typeof a.meta?.maxChars === "number" ? (a.meta.maxChars as number) : null,
+    boardId: typeof a.meta?.boardId === "string" ? (a.meta.boardId as string) : null,
   };
 }
 

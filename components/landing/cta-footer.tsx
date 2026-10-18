@@ -1,9 +1,25 @@
+import Link from "next/link";
+import { SITE } from "@/lib/site";
 import { Logo } from "./navbar";
 
 const columns = [
-  { title: "Product", links: ["Features", "Pricing", "Platforms"] },
-  { title: "Company", links: ["About", "Blog", "Contact"] },
-  { title: "Legal", links: ["Privacy", "Terms"] },
+  {
+    title: "Product",
+    links: [
+      { label: "Features", href: "/#features" },
+      { label: "Pricing", href: "/#pricing" },
+      { label: "Platforms", href: "/#platforms" },
+    ],
+  },
+  { title: "Company", links: [{ label: "Contact", href: `mailto:${SITE.supportEmail}` }] },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+      { label: "Data deletion", href: "/data-deletion" },
+    ],
+  },
 ];
 
 export function Cta() {
@@ -42,10 +58,10 @@ export function Footer() {
             <h4 className="text-sm font-semibold">{c.title}</h4>
             <ul className="mt-4 space-y-3 text-sm text-muted">
               {c.links.map((l) => (
-                <li key={l}>
-                  <a href="#" className="transition-colors hover:text-foreground">
-                    {l}
-                  </a>
+                <li key={l.label}>
+                  <Link href={l.href} className="transition-colors hover:text-foreground">
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>

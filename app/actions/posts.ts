@@ -4,6 +4,8 @@ import { Types } from "mongoose";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { connectDB } from "@/lib/db";
+import { publishPostNow, type PublishOutcome } from "@/lib/publishing/engine";
+import { validateForPlatform } from "@/lib/publishing/capabilities";
 import { postInputSchema, type PostInput } from "@/lib/validators/dashboard";
 import { Media } from "@/models/media";
 import { Post } from "@/models/post";
@@ -16,40 +18,23 @@ export type SaveMode = "draft" | "schedule" | "publish";
 export async function savePost(
   input: PostInput,
   mode: SaveMode,
-): Promise<Result<{ id: string }>> {
+): Promise<Result<{ id: string; outcome?: PublishOutcome }>> {
   const user = await getCurrentUser();
   const parsed = postInputSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const { id, text, accountIds, mediaIds, scheduledFor } = parsed.data;
+  const { id, text, accountIds, mediaIds, scheduledFor, options } = parsed.data;
 
-  if (mode !== "draft" && !text.trim() && mediaIds.length === 0) {
-    return { ok: false, error: "Write something or attach media first." };
-  }
-  if (mode === "draft" && !text.trim() && mediaIds.length === 0) {
-    return { ok: false, error: "A draft needs some text or media." };
+  if (!text.trim() && mediaIds.length === 0) {
+    return { ok: false, error: mode === "draft" ? "A draft needs some text or media." : "Write something or attach media first." };
   }
 
   await connectDB();
 
   const accounts = accountIds.length
-    ? await SocialAccount.find({ _id: { $in: accountIds }, userId: user.id, status: "active" }).lean()
+    ? await SocialAccount.find({ _id: { $in: accountIds }, userId: user.id }).lean()
     : [];
   if (accounts.length !== accountIds.length) {
     return { ok: false, error: "One of the selected accounts is no longer connected." };
-  }
-
-  if (mode !== "draft") {
-    if (accounts.length === 0) {
-      return { ok: false, error: "Connect an account and select it to publish or schedule." };
-    }
-    if (mode === "publish") {
-      // No platform adapters exist yet, so we never pretend a post went out.
-      return { ok: false, error: "Publishing isn't available for the selected networks yet." };
-    }
-    if (!scheduledFor) return { ok: false, error: "Pick a date and time to schedule." };
-    if (new Date(scheduledFor).getTime() < Date.now() + 60_000) {
-      return { ok: false, error: "Choose a time at least a minute in the future." };
-    }
   }
 
   const mediaDocs = mediaIds.length
@@ -61,9 +46,39 @@ export async function savePost(
     .filter((m): m is NonNullable<typeof m> => !!m)
     .map((m) => ({ mediaId: m._id, url: m.url, resourceType: m.resourceType }));
 
+  if (mode !== "draft") {
+    if (accounts.length === 0) {
+      return { ok: false, error: "Connect an account and select it to publish or schedule." };
+    }
+    const expired = accounts.filter((a) => a.status !== "active");
+    if (expired.length) {
+      return { ok: false, error: `Reconnect ${expired.map((a) => a.displayName).join(", ")} on the Accounts page first.` };
+    }
+    // Same rules the Compose screen shows, enforced again on the server.
+    const problems = accounts.flatMap((a) =>
+      validateForPlatform(
+        a.platform,
+        text,
+        media.map((m) => ({ resourceType: m.resourceType })),
+        typeof a.meta?.maxChars === "number" ? (a.meta.maxChars as number) : undefined,
+      ),
+    );
+    const tiktokMissing = accounts.filter((a) => a.platform === "tiktok" && !options?.tiktok?.[String(a._id)]?.privacy);
+    if (tiktokMissing.length) problems.push("Choose who can view the post on TikTok.");
+    if (problems.length) return { ok: false, error: [...new Set(problems)][0] };
+
+    if (mode === "schedule") {
+      if (!scheduledFor) return { ok: false, error: "Pick a date and time to schedule." };
+      if (new Date(scheduledFor).getTime() < Date.now() + 60_000) {
+        return { ok: false, error: "Choose a time at least a minute in the future." };
+      }
+    }
+  }
+
   const doc = {
     text,
     media,
+    options: options ?? {},
     targets: accounts.map((a) => ({
       accountId: a._id,
       platform: a.platform,
@@ -80,6 +95,13 @@ export async function savePost(
     if (existing.status === "published") {
       return { ok: false, error: "Published posts can't be edited." };
     }
+    if (existing.status === "publishing") {
+      return { ok: false, error: "This post is being published right now." };
+    }
+    if (existing.targets.some((t) => t.status === "published")) {
+      // Re-saving would reset those targets and send the post to them a second time.
+      return { ok: false, error: "Some accounts already published this post. Duplicate it to send a changed version." };
+    }
     existing.set(doc);
     if (mode !== "schedule") existing.scheduledFor = undefined;
     await existing.save();
@@ -89,8 +111,24 @@ export async function savePost(
     postId = String(created._id);
   }
 
+  if (mode !== "publish") {
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, id: postId };
+  }
+
+  const outcome = await publishPostNow(postId, { userId: user.id });
   revalidatePath("/dashboard", "layout");
-  return { ok: true, id: postId };
+  return { ok: true, id: postId, outcome };
+}
+
+/** Publish (or retry the failed accounts of) an existing post. */
+export async function publishNow(id: string): Promise<Result<{ outcome: PublishOutcome }>> {
+  const user = await getCurrentUser();
+  if (!Types.ObjectId.isValid(id)) return { ok: false, error: "Invalid post." };
+  const outcome = await publishPostNow(id, { userId: user.id });
+  revalidatePath("/dashboard", "layout");
+  if (outcome.error) return { ok: false, error: outcome.error };
+  return { ok: true, outcome };
 }
 
 export async function deletePost(id: string): Promise<Result> {

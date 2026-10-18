@@ -9,6 +9,7 @@ import { listAccounts } from "@/lib/data/accounts";
 import { listMedia } from "@/lib/data/media";
 import { getPost } from "@/lib/data/posts";
 import { toLocalInputValue } from "@/lib/format";
+import { tiktokAudited } from "@/lib/publishing/providers/tiktok";
 
 export const metadata: Metadata = { title: "Compose – Questreak" };
 export const instant = false;
@@ -37,6 +38,7 @@ export default async function ComposePage({
     accountIds: post?.targets.map((t) => t.accountId) ?? [],
     media: post?.media.map((m) => ({ id: m.mediaId, url: m.url, resourceType: m.resourceType })) ?? [],
     scheduledFor,
+    options: post?.options ?? {},
   };
 
   return (
@@ -52,6 +54,7 @@ export default async function ComposePage({
         library={library}
         initial={initial}
         userName={user.name}
+        tiktokAudited={tiktokAudited()}
       />
     </>
   );

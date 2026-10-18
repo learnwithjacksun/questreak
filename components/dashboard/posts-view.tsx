@@ -13,10 +13,12 @@ import {
   Edit02Icon,
   File02Icon,
   MoreHorizontalIcon,
+  RefreshIcon,
   Search01Icon,
+  SentIcon,
   Undo02Icon,
 } from "@hugeicons/core-free-icons";
-import { deletePost, duplicatePost, reschedulePost, unschedulePost } from "@/app/actions/posts";
+import { deletePost, duplicatePost, publishNow, reschedulePost, unschedulePost } from "@/app/actions/posts";
 import { Button, LinkButton } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Modal } from "@/components/ui/modal";
@@ -27,7 +29,7 @@ import { Select } from "@/components/ui/select";
 import { Tabs } from "@/components/ui/tabs";
 import type { PostDTO } from "@/lib/data/types";
 import { toLocalInputValue } from "@/lib/format";
-import { PLATFORM_LIST } from "@/lib/platforms";
+import { PLATFORM_LIST, PLATFORMS } from "@/lib/platforms";
 import { PostRow } from "./post-row";
 
 type Status = "all" | "published" | "scheduled" | "draft" | "failed";
@@ -66,6 +68,7 @@ export function PostsView({ initialStatus }: { initialStatus: Status }) {
   const q = useDebounced(search.trim());
 
   const [deleting, setDeleting] = useState<PostDTO | null>(null);
+  const [publishing, setPublishing] = useState<PostDTO | null>(null);
   const [rescheduling, setRescheduling] = useState<PostDTO | null>(null);
   const [when, setWhen] = useState("");
   const [pending, startTransition] = useTransition();
@@ -95,6 +98,26 @@ export function PostsView({ initialStatus }: { initialStatus: Status }) {
         toast.success(success);
         await qc.invalidateQueries({ queryKey: ["posts"] });
       } else toast.error(res.error ?? "Something went wrong.");
+      done?.();
+    });
+  }
+
+  /** Sends a post now (or retries only its failed accounts) and reports per-network results. */
+  function sendNow(p: PostDTO, done?: () => void) {
+    startTransition(async () => {
+      const res = await publishNow(p.id);
+      if (!res.ok) {
+        toast.error(res.error);
+      } else if (res.outcome.ok) {
+        toast.success("Published");
+      } else {
+        const failed = res.outcome.results.filter((r) => !r.ok);
+        toast.error(`${failed.length} account${failed.length === 1 ? "" : "s"} failed`, {
+          description: failed.map((f) => `${PLATFORMS[f.platform].name}: ${f.error}`).join("\n"),
+          duration: 12_000,
+        });
+      }
+      await qc.invalidateQueries({ queryKey: ["posts"] });
       done?.();
     });
   }
@@ -222,6 +245,20 @@ export function PostsView({ initialStatus }: { initialStatus: Status }) {
                                 <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted" /> Edit
                               </Link>
                             )}
+                            {p.status !== "published" && p.targets.length > 0 && (
+                              <button
+                                type="button"
+                                role="menuitem"
+                                className={menuItemClass}
+                                onClick={() => {
+                                  close();
+                                  setPublishing(p);
+                                }}
+                              >
+                                <HugeiconsIcon icon={p.status === "failed" ? RefreshIcon : SentIcon} size={16} className="text-muted" />
+                                {p.status === "failed" ? "Retry failed" : "Publish now"}
+                              </button>
+                            )}
                             <button
                               type="button"
                               role="menuitem"
@@ -286,6 +323,20 @@ export function PostsView({ initialStatus }: { initialStatus: Status }) {
       {data && data.total > 0 && (
         <Pagination page={page} pageCount={data.pageCount} total={data.total} pageSize={PAGE_SIZE} onChange={setPage} />
       )}
+
+      <ConfirmDialog
+        open={!!publishing}
+        onClose={() => setPublishing(null)}
+        pending={pending}
+        title={publishing?.status === "failed" ? "Retry the failed accounts?" : "Publish this post now?"}
+        description={
+          publishing?.status === "failed"
+            ? "Only the accounts that failed will be tried again. Accounts that already published won't get a duplicate."
+            : "It will be sent to every selected account right away."
+        }
+        confirmLabel={publishing?.status === "failed" ? "Retry" : "Publish now"}
+        onConfirm={() => publishing && sendNow(publishing, () => setPublishing(null))}
+      />
 
       <ConfirmDialog
         open={!!deleting}

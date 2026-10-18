@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Image01Icon, Video01Icon } from "@hugeicons/core-free-icons";
+import { ArrowUpRight01Icon, Image01Icon, Video01Icon } from "@hugeicons/core-free-icons";
 import { PlatformIcon } from "@/components/ui/primitives";
 import type { PostDTO } from "@/lib/data/types";
+import { PLATFORMS } from "@/lib/platforms";
 import { LocalTime } from "./local-time";
 import { PostStatusBadge } from "./status-badge";
 
@@ -12,6 +14,8 @@ export function PostRow({ post, actions }: { post: PostDTO; actions?: ReactNode 
     post.status === "scheduled" && post.scheduledFor
       ? post.scheduledFor
       : (post.publishedAt ?? post.updatedAt);
+  const failed = post.targets.filter((t) => t.status === "failed");
+  const live = post.targets.filter((t) => t.status === "published" && t.externalUrl);
   const images = post.media.filter((m) => m.resourceType === "image").length;
   const videos = post.media.length - images;
 
@@ -47,6 +51,42 @@ export function PostRow({ post, actions }: { post: PostDTO; actions?: ReactNode 
           )}
           {post.platforms.length > 3 && <span>+{post.platforms.length - 3} networks</span>}
         </div>
+
+        {failed.length > 0 && (
+          <ul className="mt-2.5 space-y-1 text-xs leading-5 text-red-400">
+            {failed.slice(0, 3).map((t) => (
+              <li key={t.accountId}>
+                <span className="font-medium">{PLATFORMS[t.platform].name}:</span> {t.error ?? "Couldn't publish."}
+                {t.needsReconnect && (
+                  <>
+                    {" "}
+                    <Link href="/dashboard/accounts" className="underline">
+                      Reconnect
+                    </Link>
+                  </>
+                )}
+              </li>
+            ))}
+            {failed.length > 3 && <li className="text-muted">+{failed.length - 3} more</li>}
+          </ul>
+        )}
+
+        {live.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-xs">
+            {live.map((t) => (
+              <a
+                key={t.accountId}
+                href={t.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground"
+              >
+                View on {PLATFORMS[t.platform].name}
+                <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} />
+              </a>
+            ))}
+          </div>
+        )}
       </div>
       {actions && <div className="shrink-0">{actions}</div>}
     </div>

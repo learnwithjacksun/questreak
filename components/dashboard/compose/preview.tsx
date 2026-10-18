@@ -6,6 +6,7 @@ import { Video01Icon } from "@hugeicons/core-free-icons";
 import { Avatar, PlatformIcon } from "@/components/ui/primitives";
 import { Tabs } from "@/components/ui/tabs";
 import type { AccountDTO } from "@/lib/data/types";
+import { displayHandle } from "@/lib/format";
 import { PLATFORMS, type PlatformKey } from "@/lib/platforms";
 import type { ComposeMedia } from "@/lib/stores/compose-store";
 import { cn } from "@/lib/utils";
@@ -46,7 +47,7 @@ export function PostPreview({
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">{account?.displayName ?? userName}</p>
             <p className="truncate text-xs text-muted">
-              {account ? `@${account.handle}` : "Preview"} · now
+              {account ? displayHandle(account.platform, account.handle) : "Preview"} · now
             </p>
           </div>
           <PlatformIcon platform={active} size={18} />

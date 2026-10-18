@@ -3,6 +3,30 @@ import { PLATFORM_KEYS } from "@/lib/platforms";
 
 const objectId = z.string().regex(/^[a-f\d]{24}$/i, "Invalid id");
 
+const tiktokSettings = z.object({
+  privacy: z.string().max(40).optional(),
+  comment: z.boolean().optional(),
+  duet: z.boolean().optional(),
+  stitch: z.boolean().optional(),
+  commercial: z.boolean().optional(),
+  yourBrand: z.boolean().optional(),
+  brandedContent: z.boolean().optional(),
+});
+
+export const postOptionsSchema = z.object({
+  youtube: z
+    .object({ title: z.string().max(100).optional(), privacy: z.enum(["public", "unlisted", "private"]).optional() })
+    .optional(),
+  pinterest: z
+    .object({
+      title: z.string().max(100).optional(),
+      link: z.union([z.literal(""), z.string().url("Enter a valid Pinterest link")]).optional(),
+      boardId: z.string().max(64).optional(),
+    })
+    .optional(),
+  tiktok: z.record(objectId, tiktokSettings).optional(),
+});
+
 export const postInputSchema = z.object({
   id: objectId.optional(),
   text: z.string().max(63206, "Post is too long"),
@@ -10,6 +34,7 @@ export const postInputSchema = z.object({
   mediaIds: z.array(objectId).max(10, "Attach up to 10 files").default([]),
   /** ISO string; omit for a draft. */
   scheduledFor: z.string().datetime({ offset: true }).optional(),
+  options: postOptionsSchema.optional(),
 });
 export type PostInput = z.input<typeof postInputSchema>;
 

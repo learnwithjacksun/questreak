@@ -20,7 +20,7 @@ export async function markOrderPaid(orderId: string, provider: string, reference
       "payment.reference": reference,
       "payment.paidAt": new Date(),
     },
-    { new: true },
+    { returnDocument: "after" },
   );
   return order;
 }
@@ -35,7 +35,7 @@ export async function fulfillOrder(orderId: string) {
   const order = await Order.findOneAndUpdate(
     { _id: orderId, status: "paid" },
     { status: "fulfilling" },
-    { new: true },
+    { returnDocument: "after" },
   );
   if (!order) return { ok: false as const, reason: "Order is not awaiting fulfilment" };
 

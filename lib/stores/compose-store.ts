@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { PostOptions } from "@/models/post";
 
 export type ComposeMedia = { id: string; url: string; resourceType: "image" | "video" };
 
@@ -9,6 +10,8 @@ type ComposeState = {
   media: ComposeMedia[];
   /** `datetime-local` value in the viewer's timezone, or "". */
   scheduledFor: string;
+  /** Per-network settings (YouTube title, TikTok privacy...). */
+  options: PostOptions;
   /** Text before the last AI replacement, for undo. */
   previousText: string | null;
 
@@ -18,6 +21,7 @@ type ComposeState = {
     accountIds?: string[];
     media?: ComposeMedia[];
     scheduledFor?: string;
+    options?: PostOptions;
   }) => void;
   setText: (text: string) => void;
   applyAi: (text: string) => void;
@@ -26,6 +30,7 @@ type ComposeState = {
   setMedia: (media: ComposeMedia[]) => void;
   removeMedia: (id: string) => void;
   setScheduledFor: (value: string) => void;
+  patchOptions: (patch: (current: PostOptions) => PostOptions) => void;
 };
 
 export const useComposeStore = create<ComposeState>((set, get) => ({
@@ -34,6 +39,7 @@ export const useComposeStore = create<ComposeState>((set, get) => ({
   accountIds: [],
   media: [],
   scheduledFor: "",
+  options: {},
   previousText: null,
 
   init: (initial) =>
@@ -43,6 +49,7 @@ export const useComposeStore = create<ComposeState>((set, get) => ({
       accountIds: initial.accountIds ?? [],
       media: initial.media ?? [],
       scheduledFor: initial.scheduledFor ?? "",
+      options: initial.options ?? {},
       previousText: null,
     }),
   setText: (text) => set({ text }),
@@ -60,4 +67,5 @@ export const useComposeStore = create<ComposeState>((set, get) => ({
   setMedia: (media) => set({ media }),
   removeMedia: (id) => set((s) => ({ media: s.media.filter((m) => m.id !== id) })),
   setScheduledFor: (scheduledFor) => set({ scheduledFor }),
+  patchOptions: (patch) => set((s) => ({ options: patch(s.options) })),
 }));

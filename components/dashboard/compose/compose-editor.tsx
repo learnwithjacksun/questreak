@@ -19,10 +19,15 @@ import { PlatformIcon } from "@/components/ui/primitives";
 import type { AccountDTO, MediaDTO } from "@/lib/data/types";
 import { toLocalInputValue } from "@/lib/format";
 import { PLATFORMS } from "@/lib/platforms";
+import { CAPABILITIES, validateForPlatform } from "@/lib/publishing/capabilities";
+import { optionProblems } from "@/lib/publishing/option-rules";
+import { countFor } from "@/lib/publishing/text";
 import { useComposeStore, type ComposeMedia } from "@/lib/stores/compose-store";
 import { cn } from "@/lib/utils";
+import type { PostOptions } from "@/models/post";
 import { AiPanel } from "./ai-panel";
 import { MediaPicker } from "./media-picker";
+import { NetworkOptions } from "./network-options";
 import { useMediaUpload } from "../use-media-upload";
 import { PostPreview } from "./preview";
 
@@ -32,6 +37,7 @@ export type ComposeInitial = {
   accountIds: string[];
   media: ComposeMedia[];
   scheduledFor: string;
+  options: PostOptions;
 };
 
 export function ComposeEditor({
@@ -39,11 +45,13 @@ export function ComposeEditor({
   library,
   initial,
   userName,
+  tiktokAudited,
 }: {
   accounts: AccountDTO[];
   library: MediaDTO[];
   initial: ComposeInitial;
   userName: string;
+  tiktokAudited: boolean;
 }) {
   // Seed the store once, before the first read, so a stale draft never flashes.
   useState(() => {
@@ -52,7 +60,7 @@ export function ComposeEditor({
   });
 
   const router = useRouter();
-  const { postId, text, accountIds, media, scheduledFor, setText, toggleAccount, setMedia, removeMedia, setScheduledFor } =
+  const { postId, text, accountIds, media, scheduledFor, options, setText, toggleAccount, setMedia, removeMedia, setScheduledFor } =
     useComposeStore();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pendingMode, setPendingMode] = useState<SaveMode | null>(null);
@@ -85,19 +93,34 @@ export function ComposeEditor({
 
   const selected = accounts.filter((a) => accountIds.includes(a.id));
   const selectedPlatforms = [...new Set(selected.map((a) => a.platform))];
-  const overLimit = selectedPlatforms.filter((p) => text.length > PLATFORMS[p].charLimit);
   const hasAccounts = accounts.length > 0;
   const hasContent = text.trim().length > 0 || media.length > 0;
+  const hasVideo = media.some((m) => m.resourceType === "video");
+  const needReconnect = selected.filter((a) => a.status !== "active");
+
+  /** Tightest text limit among the selected accounts of a network (Mastodon servers differ). */
+  const limitFor = (platform: (typeof selectedPlatforms)[number]) =>
+    Math.min(...selected.filter((a) => a.platform === platform).map((a) => a.charLimit ?? PLATFORMS[platform].charLimit));
+
+  // Everything that would make a network reject this post, so the user fixes it before sending.
+  const problems = hasContent
+    ? [
+        ...new Set([
+          ...selected.flatMap((a) => validateForPlatform(a.platform, text, media, a.charLimit ?? undefined)),
+          ...optionProblems(selected, options),
+        ]),
+      ]
+    : [];
 
   const publishBlock = !hasAccounts
     ? "Connect an account to publish or schedule."
     : selected.length === 0
       ? "Select at least one account."
-      : overLimit.length > 0
-        ? `Too long for ${overLimit.map((p) => PLATFORMS[p].name).join(", ")}.`
+      : needReconnect.length > 0
+        ? `Reconnect ${needReconnect.map((a) => a.displayName).join(", ")} first.`
         : !hasContent
           ? "Add some text or media."
-          : null;
+          : (problems[0] ?? null);
   const scheduleBlock = publishBlock ?? (!scheduledFor ? "Pick a date and time to schedule." : null);
 
   function submit(mode: SaveMode) {
@@ -110,6 +133,7 @@ export function ComposeEditor({
           accountIds,
           mediaIds: media.map((m) => m.id),
           scheduledFor: mode === "schedule" && scheduledFor ? new Date(scheduledFor).toISOString() : undefined,
+          options,
         },
         mode,
       );
@@ -118,8 +142,26 @@ export function ComposeEditor({
         toast.error(res.error);
         return;
       }
-      toast.success(mode === "schedule" ? "Post scheduled" : mode === "draft" ? "Draft saved" : "Post published");
       useComposeStore.getState().init({});
+
+      if (mode === "publish" && res.outcome) {
+        const sent = res.outcome.results.filter((r) => r.ok).length;
+        const total = res.outcome.results.length;
+        const failed = res.outcome.results.filter((r) => !r.ok);
+        if (res.outcome.ok) {
+          const note = res.outcome.results.find((r) => r.note)?.note;
+          toast.success(total === 1 ? "Post published" : `Published to ${total} accounts`, note ? { description: note } : undefined);
+          router.push("/dashboard/posts?status=published");
+        } else {
+          toast.error(sent > 0 ? `Published to ${sent} of ${total} accounts` : "Couldn't publish this post", {
+            description: failed.map((f) => `${PLATFORMS[f.platform].name}: ${f.error}`).join("\n"),
+            duration: 12_000,
+          });
+          router.push("/dashboard/posts?status=failed");
+        }
+        return;
+      }
+      toast.success(mode === "schedule" ? "Post scheduled" : "Draft saved");
       router.push(`/dashboard/posts?status=${mode === "schedule" ? "scheduled" : "draft"}`);
     });
   }
@@ -171,7 +213,9 @@ export function ComposeEditor({
           {selectedPlatforms.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {selectedPlatforms.map((p) => {
-                const over = text.length > PLATFORMS[p].charLimit;
+                const limit = limitFor(p);
+                const len = countFor(p, text);
+                const over = len > limit;
                 return (
                   <span
                     key={p}
@@ -180,7 +224,7 @@ export function ComposeEditor({
                       over ? "border-red-500/30 bg-red-500/10 text-red-400" : "border-border text-muted",
                     )}
                   >
-                    {PLATFORMS[p].name} {text.length.toLocaleString()}/{PLATFORMS[p].charLimit.toLocaleString()}
+                    {PLATFORMS[p].name} {len.toLocaleString()}/{limit.toLocaleString()}
                   </span>
                 );
               })}
@@ -270,19 +314,23 @@ export function ComposeEditor({
             <ul className="mt-3 flex flex-wrap gap-2.5">
               {accounts.map((a) => {
                 const on = accountIds.includes(a.id);
+                const stale = a.status !== "active";
                 return (
                   <li key={a.id}>
                     <button
                       type="button"
                       aria-pressed={on}
                       onClick={() => toggleAccount(a.id)}
+                      title={stale ? "This account needs to be reconnected before it can post" : PLATFORMS[a.platform].name}
                       className={cn(
                         "flex items-center gap-2.5 rounded-full border py-1.5 pl-1.5 pr-4 text-sm transition-colors",
                         on ? "border-foreground bg-white/10" : "border-border text-muted hover:text-foreground",
+                        stale && "border-amber-500/40",
                       )}
                     >
                       <PlatformIcon platform={a.platform} size={16} className="rounded-full" />
                       {a.displayName}
+                      {stale && <span className="text-xs text-amber-400">Reconnect</span>}
                       {on && <HugeiconsIcon icon={Tick02Icon} size={14} />}
                     </button>
                   </li>
@@ -302,6 +350,8 @@ export function ComposeEditor({
             </div>
           )}
         </section>
+
+        <NetworkOptions accounts={selected} text={text} hasVideo={hasVideo} tiktokAudited={tiktokAudited} />
 
         <section className="card p-5">
           <label htmlFor="schedule" className="text-sm font-medium">
@@ -353,8 +403,23 @@ export function ComposeEditor({
               Publish now
             </Button>
           </div>
-          {(publishBlock || scheduleBlock) && (
-            <p className="text-xs text-muted">{publishBlock ?? scheduleBlock}</p>
+          {problems.length > 1 ? (
+            <ul className="space-y-1 text-xs text-red-400">
+              {problems.slice(0, 5).map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          ) : (
+            (publishBlock || scheduleBlock) && <p className="text-xs text-muted">{publishBlock ?? scheduleBlock}</p>
+          )}
+          {selectedPlatforms.length > 0 && problems.length === 0 && (
+            <ul className="space-y-0.5 text-xs text-muted">
+              {selectedPlatforms.map((p) => (
+                <li key={p}>
+                  <span className="text-foreground/80">{PLATFORMS[p].name}:</span> {CAPABILITIES[p].hint}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       </div>

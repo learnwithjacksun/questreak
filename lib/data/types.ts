@@ -1,5 +1,5 @@
 import type { PlatformKey } from "@/lib/platforms";
-import type { PostStatus } from "@/models/post";
+import type { PostOptions, PostStatus } from "@/models/post";
 import type { OrderKind, OrderStatus } from "@/models/order";
 
 /** Plain, JSON-safe shapes passed from server to client components. */
@@ -17,8 +17,10 @@ export type PostDTO = {
     platform: PlatformKey;
     status: "pending" | "published" | "failed";
     error?: string;
+    needsReconnect?: boolean;
     externalUrl?: string;
   }[];
+  options: PostOptions;
   media: { mediaId: string; url: string; resourceType: "image" | "video" }[];
 };
 
@@ -31,6 +33,11 @@ export type AccountDTO = {
   status: "active" | "expired" | "error";
   connectedAt: string;
   expiresAt: string | null;
+  lastError: string | null;
+  /** Network-specific text limit (Mastodon servers differ). */
+  charLimit: number | null;
+  /** Pinterest: board used when a post doesn't pick one. */
+  boardId: string | null;
 };
 
 export type MediaDTO = {

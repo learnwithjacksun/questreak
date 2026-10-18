@@ -15,7 +15,7 @@ export function Platforms() {
           Connected through each platform&apos;s official API — no password
           sharing, ever.
         </p>
-        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-5">
           {platforms.map((p, i) => (
             <motion.div
               key={p.name}

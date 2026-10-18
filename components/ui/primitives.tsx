@@ -171,6 +171,20 @@ export function PlatformIcon({
 }) {
   const p = PLATFORMS[platform];
   const box = size + 12;
+
+  if (!p.logo) {
+    // Networks without a logo file are drawn as a branded tile.
+    return (
+      <span
+        title={p.name}
+        className={cn("grid shrink-0 place-items-center rounded-lg", className)}
+        style={{ width: box, height: box, backgroundColor: p.tile?.bg ?? "#52525b" }}
+      >
+        {p.tile && <HugeiconsIcon icon={p.tile.icon} size={size * 0.75} color="white" />}
+      </span>
+    );
+  }
+
   return (
     <span
       title={p.name}
