@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   ArrowDown01Icon,
+  ArrowRight01Icon,
   Logout01Icon,
   Settings02Icon,
   CreditCardIcon,
@@ -179,33 +180,66 @@ export function DashboardHeader({ user }: { user: HeaderUser }) {
                 transition={{ delay: 0.04 + i * 0.04 }}
               >
                 {entry.items ? (
-                  <div className="py-2">
-                    <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted">
+                  <div className="border-b border-border/60 py-4">
+                    <p className="flex items-center gap-3 text-xs font-medium uppercase tracking-[0.16em] text-muted">
                       <HugeiconsIcon icon={entry.icon} size={15} />
                       {entry.label}
+                      <span aria-hidden className="h-px flex-1 bg-border/60" />
                     </p>
-                    <ul className="mt-1">
-                      {entry.items.map((item) => (
-                        <li key={item.href}>
-                          <Link
-                            href={item.href}
-                            className={cn(
-                              "block py-2 text-2xl font-semibold tracking-tight",
-                              isActive(pathname, item.href) ? "text-foreground" : "text-foreground/80",
-                            )}
-                          >
-                            {item.label}
-                          </Link>
-                        </li>
-                      ))}
+                    <ul className="mt-2 space-y-0.5">
+                      {entry.items.map((item) => {
+                        const active = isActive(pathname, item.href);
+                        return (
+                          <li key={item.href}>
+                            <Link
+                              href={item.href}
+                              aria-current={active ? "page" : undefined}
+                              className="relative block rounded-xl py-2.5 pl-4 transition-colors active:bg-white/5"
+                            >
+                              {active && (
+                                <span
+                                  aria-hidden
+                                  className="bg-brand-gradient absolute inset-y-2.5 left-0 w-1 rounded-full"
+                                />
+                              )}
+                              <span
+                                className={cn(
+                                  "block text-[26px] font-semibold leading-tight tracking-tight",
+                                  active ? "text-brand-gradient" : "text-foreground",
+                                )}
+                              >
+                                {item.label}
+                              </span>
+                              {item.description && (
+                                <span className="mt-0.5 block text-sm text-muted">{item.description}</span>
+                              )}
+                            </Link>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 ) : (
                   <Link
                     href={entry.href}
-                    className="block py-2.5 text-3xl font-semibold tracking-tight"
+                    aria-current={isActive(pathname, entry.href) ? "page" : undefined}
+                    className="relative flex items-center justify-between border-b border-border/60 py-4 pl-4 transition-colors active:bg-white/5"
                   >
-                    {entry.label}
+                    {isActive(pathname, entry.href) && (
+                      <span
+                        aria-hidden
+                        className="bg-brand-gradient absolute inset-y-4 left-0 w-1 rounded-full"
+                      />
+                    )}
+                    <span
+                      className={cn(
+                        "text-[30px] font-semibold leading-tight tracking-tight",
+                        isActive(pathname, entry.href) ? "text-brand-gradient" : "text-foreground",
+                      )}
+                    >
+                      {entry.label}
+                    </span>
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={20} className="text-muted" />
                   </Link>
                 )}
               </motion.li>

@@ -3,7 +3,6 @@ import {
   ComposeEditor,
   type ComposeInitial,
 } from "@/components/dashboard/compose/compose-editor";
-import { PageHeader } from "@/components/ui/primitives";
 import { getCurrentUser } from "@/lib/auth";
 import { listAccounts } from "@/lib/data/accounts";
 import { listMedia } from "@/lib/data/media";
@@ -43,10 +42,6 @@ export default async function ComposePage({
 
   return (
     <>
-      <PageHeader
-        title={post ? "Edit post" : "Compose"}
-        description="Write once, pick your accounts, and publish or schedule."
-      />
       <ComposeEditor
         // Remount when switching between posts so the store re-seeds.
         key={post?.id ?? date ?? "new"}
@@ -55,6 +50,7 @@ export default async function ComposePage({
         initial={initial}
         userName={user.name}
         tiktokAudited={tiktokAudited()}
+        title={post ? "Edit post" : "Compose"}
       />
     </>
   );

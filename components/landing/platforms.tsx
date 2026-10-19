@@ -26,7 +26,7 @@ export function Platforms() {
               whileHover={{ y: -4 }}
               className="card group flex min-w-0 flex-col items-center gap-2 p-3 text-center sm:gap-3 sm:p-6"
             >
-              <span className="-m-2 scale-[0.7] grayscale transition sm:m-0 sm:scale-100 duration-300 group-hover:grayscale-0 group-active:grayscale-0">
+              <span className="-m-2 scale-[0.7] transition sm:m-0 sm:scale-100 duration-300 group-hover:grayscale-0 group-active:grayscale-0">
                 <PlatformIcon platform={p.key} size={40} />
               </span>
               <span className="text-xs font-medium sm:text-base">{p.name}</span>

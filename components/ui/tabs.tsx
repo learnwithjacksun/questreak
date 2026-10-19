@@ -27,7 +27,7 @@ export function Tabs<T extends string>({
     <div
       role="tablist"
       className={cn(
-        "flex gap-1 overflow-x-auto border-b border-border [scrollbar-width:none]",
+        "flex gap-0.5 overflow-x-auto sm:gap-1 border-b border-border [scrollbar-width:none]",
         className,
       )}
     >
@@ -41,7 +41,7 @@ export function Tabs<T extends string>({
             aria-selected={active}
             onClick={() => onChange(t.value)}
             className={cn(
-              "relative flex shrink-0 items-center gap-2 px-3.5 py-3 text-sm font-medium transition-colors",
+              "relative flex shrink-0 items-center gap-1.5 px-2.5 py-3 text-[13px] font-medium sm:gap-2 sm:px-3.5 sm:text-sm transition-colors",
               active ? "text-foreground" : "text-muted hover:text-foreground",
             )}
           >

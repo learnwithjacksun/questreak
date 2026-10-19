@@ -26,9 +26,9 @@ export function RecentActivity({
 
   return (
     <section className="card overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-3">
+      <div className="flex items-center justify-between gap-2 px-3 pt-3 sm:gap-3 sm:px-5">
         <Tabs<Tab>
-          className="-mb-px border-b-0"
+          className="-mb-px min-w-0 border-b-0"
           value={tab}
           onChange={setTab}
           items={[
@@ -38,7 +38,7 @@ export function RecentActivity({
         />
         <Link
           href={`/dashboard/posts?status=${tab}`}
-          className="text-sm text-muted transition-colors hover:text-foreground"
+          className="shrink-0 pb-0.5 pr-1 text-xs text-muted transition-colors hover:text-foreground sm:text-sm"
         >
           View all
         </Link>

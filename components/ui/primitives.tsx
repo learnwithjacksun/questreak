@@ -68,15 +68,15 @@ export function StatCard({
   delta?: { value: number; label?: string } | null;
 }) {
   return (
-    <div className="card min-w-0 p-3.5 sm:p-5">
-      <div className="flex items-start justify-between gap-2 sm:items-center">
-        <p className="min-w-0 text-xs leading-snug text-muted sm:text-sm">{label}</p>
+    <div className="card min-w-0 p-4 sm:p-5">
+      <div className="flex flex-col-reverse items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+        <p className="min-w-0 text-[13px] leading-snug text-muted sm:text-sm">{label}</p>
         <span className="grid size-8 shrink-0 place-items-center rounded-lg border border-border bg-white/5 sm:size-9">
           <HugeiconsIcon icon={icon} size={17} />
         </span>
       </div>
-      <p className="mt-2.5 text-2xl font-semibold tracking-tight tabular-nums sm:mt-3 sm:text-3xl">{value}</p>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 text-[11px] leading-snug text-muted sm:text-xs">
+      <p className="mt-1 text-2xl font-semibold tracking-tight tabular-nums sm:mt-3 sm:text-3xl">{value}</p>
+      <div className="mt-2 hidden flex-wrap items-center gap-x-2 gap-y-0.5 text-xs leading-snug text-muted sm:flex">
         {delta && (
           <span
             className={cn(
